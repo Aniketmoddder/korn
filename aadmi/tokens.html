@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en" class="dark selection:bg-[#8BE9FD] selection:text-[#050505]">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KORN // API KEYS</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: {
+                        void: '#030303', surface: '#0A0A0B', panel: 'rgba(20, 20, 22, 0.65)', 
+                        borderline: 'rgba(255, 255, 255, 0.06)', 
+                        cyan: { DEFAULT: '#8BE9FD', dim: 'rgba(139, 233, 253, 0.1)', glow: 'rgba(139, 233, 253, 0.5)' },
+                        purple: { DEFAULT: '#BD93F9', dim: 'rgba(189, 147, 249, 0.1)' },
+                        red: { DEFAULT: '#FF5555', dim: 'rgba(255, 85, 85, 0.1)' },
+                        text: { main: '#F4F4F5', muted: '#A1A1AA', dark: '#52525B' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #030303; color: #F4F4F5; -webkit-font-smoothing: antialiased; }
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Shaders & Backgrounds */
+        .shader-bg { position: fixed; inset: 0; z-index: -2; background-color: #030303; overflow: hidden; }
+        .orb-1 {
+            position: absolute; top: 10%; right: -10%; width: 40vw; height: 40vw; min-width: 300px;
+            background: radial-gradient(circle, rgba(139,233,253,0.08) 0%, transparent 60%);
+            animation: float-orb 20s ease-in-out infinite alternate; filter: blur(60px);
+        }
+        .orb-2 {
+            position: absolute; bottom: 10%; left: -10%; width: 50vw; height: 50vw; min-width: 400px;
+            background: radial-gradient(circle, rgba(189,147,249,0.06) 0%, transparent 60%);
+            animation: float-orb 25s ease-in-out infinite alternate-reverse; filter: blur(60px);
+        }
+        @keyframes float-orb { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(-5%, 5%) scale(1.1); } }
+        .noise-overlay { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
+
+        /* UI Components */
+        .glass-panel {
+            background: var(--tw-colors-panel); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--tw-colors-borderline);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 8px 32px rgba(0,0,0,0.4);
+        }
+        .token-row { transition: all 0.3s ease; }
+        .token-row:hover { border-color: rgba(139, 233, 253, 0.3); transform: translateX(4px); background: rgba(30, 30, 35, 0.7); }
+        
+        /* Floating Nav */
+        .floating-nav {
+            background: rgba(10, 10, 11, 0.7); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        }
+        .nav-item.active { color: #8BE9FD; background: rgba(139, 233, 253, 0.1); }
+        .nav-item.active::after { content: ''; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: #8BE9FD; border-radius: 50%; box-shadow: 0 0 10px #8BE9FD; }
+
+        /* Progress Bar Animation */
+        .progress-fill { transition: width 1s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        /* Modal Transitions */
+        .modal-enter { opacity: 0; transform: scale(0.95) translateY(10px); }
+        .modal-enter-active { opacity: 1; transform: scale(1) translateY(0); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        /* Animations */
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-in { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+        .d-1 { animation-delay: 0.1s; } .d-2 { animation-delay: 0.2s; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden relative">
+
+    <div class="shader-bg"><div class="orb-1"></div><div class="orb-2"></div></div>
+    <div class="noise-overlay"></div>
+
+    <header class="md:hidden fixed top-0 left-0 right-0 h-20 bg-gradient-to-b from-void to-transparent z-40 flex items-center justify-between px-6">
+        <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-cyan shadow-[0_0_12px_#8BE9FD] animate-pulse"></div>
+            <span class="font-mono font-bold text-lg tracking-tighter">KORN<span class="text-cyan">.</span></span>
+        </div>
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan to-purple p-[1px]">
+            <div class="w-full h-full rounded-full bg-surface flex items-center justify-center"><i data-lucide="user" class="w-4 h-4 text-text-main"></i></div>
+        </div>
+    </header>
+
+    <nav class="md:hidden fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 floating-nav rounded-full px-2 py-2 flex items-center gap-1 w-[90%] max-w-[340px] justify-between">
+        <a href="index.html" class="nav-item relative p-3 rounded-full flex-1 flex justify-center text-text-muted hover:text-text-main transition-all duration-300">
+            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+        </a>
+        <a href="tokens.html" class="nav-item active relative p-3 rounded-full flex-1 flex justify-center transition-all duration-300">
+            <i data-lucide="key" class="w-5 h-5"></i>
+        </a>
+        <button class="nav-item relative p-3 rounded-full flex-1 flex justify-center text-text-muted hover:text-text-main transition-all duration-300">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+        </button>
+        <button class="nav-item relative p-3 rounded-full flex-1 flex justify-center text-text-muted hover:text-text-main transition-all duration-300">
+            <i data-lucide="settings" class="w-5 h-5"></i>
+        </button>
+    </nav>
+
+    <aside class="hidden md:flex flex-col w-64 h-full border-r border-borderline bg-void/40 backdrop-blur-xl relative z-30 pt-8 pb-6 justify-between">
+        <div class="px-8">
+            <div class="flex items-center gap-3 mb-12">
+                <div class="w-2 h-2 rounded-full bg-cyan shadow-[0_0_12px_#8BE9FD]"></div>
+                <h1 class="font-mono font-bold text-xl tracking-tighter">KORN<span class="text-cyan">_</span>SYS</h1>
+            </div>
+            <div class="space-y-2">
+                <p class="text-[10px] uppercase tracking-[0.2em] text-text-dark font-semibold mb-4">Core</p>
+                <a href="index.html" class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-text-main hover:bg-borderline rounded-xl transition-all font-medium">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="tokens.html" class="flex items-center gap-3 px-4 py-3 text-cyan bg-cyan-dim rounded-xl border border-cyan/20 transition-all font-medium">
+                    <i data-lucide="key" class="w-4 h-4"></i> API Keys
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 h-full overflow-y-auto relative z-10 pt-24 pb-32 md:pt-0 md:pb-0 scroll-smooth">
+        <div class="max-w-5xl mx-auto px-6 md:pt-12">
+            
+            <header class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10 animate-in d-1">
+                <div>
+                    <p class="font-mono text-cyan text-xs mb-2 uppercase tracking-[0.2em] font-semibold">ACCESS_CONTROL</p>
+                    <h2 class="text-4xl font-bold text-white tracking-tight leading-none">API Keys</h2>
+                </div>
+                <button onclick="toggleModal('generateModal', true)" class="px-6 py-3 bg-white text-void font-semibold rounded-full transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] flex items-center gap-2 justify-center shadow-lg w-full sm:w-auto">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Generate Key
+                </button>
+            </header>
+
+            <div class="space-y-4 animate-in d-2" id="tokens-list">
+                <div class="flex justify-center items-center py-20 text-text-muted flex-col gap-4" id="loader">
+                    <div class="w-6 h-6 border-2 border-cyan/30 border-t-cyan rounded-full animate-spin"></div>
+                    <span class="font-mono text-xs tracking-widest">FETCHING_DATA...</span>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="generateModal" class="fixed inset-0 z-50 flex items-center justify-center px-4 hidden">
+        <div class="absolute inset-0 bg-void/80 backdrop-blur-sm transition-opacity" onclick="toggleModal('generateModal', false)"></div>
+        
+        <div class="glass-panel w-full max-w-md rounded-3xl p-8 relative z-10 modal-enter" id="modalContent">
+            <button onclick="toggleModal('generateModal', false)" class="absolute top-6 right-6 text-text-dark hover:text-white transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            
+            <div class="w-10 h-10 rounded-full bg-cyan-dim flex items-center justify-center mb-6 border border-cyan/20">
+                <i data-lucide="zap" class="text-cyan w-5 h-5"></i>
+            </div>
+            
+            <h3 class="text-2xl font-semibold text-white mb-1">New Token</h3>
+            <p class="text-sm text-text-muted mb-8">Set limits and expiration for the new API key.</p>
+
+            <form id="generateForm" onsubmit="handleGenerate(event)">
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-xs font-mono text-text-dark uppercase tracking-wider mb-2">Request Limit</label>
+                        <input type="number" id="tokenLimit" required value="1000" min="1" class="w-full bg-void border border-borderline rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan/50 focus:ring-1 focus:ring-cyan/50 transition-all font-mono text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-text-dark uppercase tracking-wider mb-2">Expiry Date</label>
+                        <input type="date" id="tokenExpiry" required class="w-full bg-void border border-borderline rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan/50 focus:ring-1 focus:ring-cyan/50 transition-all font-mono text-sm [color-scheme:dark]">
+                    </div>
+                </div>
+                
+                <button type="submit" class="w-full mt-8 px-6 py-3.5 bg-cyan hover:bg-white text-void font-semibold rounded-xl transition-colors flex items-center justify-center gap-2" id="submitBtn">
+                    Create Token <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Setup default date for modal (30 days from now)
+        const dateInput = document.getElementById('tokenExpiry');
+        const defaultDate = new Date();
+        defaultDate.setDate(defaultDate.getDate() + 30);
+        dateInput.value = defaultDate.toISOString().split('T')[0];
+
+        // Fetch & Render Tokens
+        async function loadTokens() {
+            try {
+                const response = await fetch('api-backend.php?action=get_tokens');
+                const data = await response.json();
+                const container = document.getElementById('tokens-list');
+                
+                container.innerHTML = ''; // Clear loader
+
+                if (data.tokens.length === 0) {
+                    container.innerHTML = `
+                        <div class="glass-panel rounded-3xl p-10 text-center flex flex-col items-center justify-center">
+                            <i data-lucide="key-round" class="w-10 h-10 text-text-dark mb-4"></i>
+                            <h3 class="text-white font-medium mb-1">No API Keys Found</h3>
+                            <p class="text-xs text-text-muted">Generate a key to start accessing the API.</p>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                    return;
+                }
+
+                data.tokens.forEach(token => {
+                    // Calculate logic
+                    const isExpired = new Date(token.expiry) < new Date();
+                    const isLimitReached = parseInt(token.used) >= parseInt(token.limit);
+                    const isInvalid = isExpired || isLimitReached || token.status !== 'active';
+                    
+                    const progressPercent = Math.min((token.used / token.limit) * 100, 100);
+                    let progressColor = 'bg-cyan';
+                    if (progressPercent > 80) progressColor = 'bg-yellow-400';
+                    if (progressPercent >= 100) progressColor = 'bg-red';
+
+                    const statusDot = isInvalid ? 'bg-red shadow-[0_0_8px_#FF5555]' : 'bg-cyan shadow-[0_0_8px_#8BE9FD] animate-pulse';
+                    const statusText = isExpired ? 'EXPIRED' : (isLimitReached ? 'LIMIT_HIT' : 'ACTIVE');
+
+                    const html = `
+                        <div class="glass-panel rounded-2xl p-5 sm:p-6 token-row flex flex-col sm:flex-row sm:items-center justify-between gap-6" id="row-${token.token}">
+                            
+                            <div class="flex items-start sm:items-center gap-4">
+                                <div class="hidden sm:flex w-10 h-10 rounded-full bg-void border border-borderline items-center justify-center shrink-0">
+                                    <span class="w-2 h-2 rounded-full ${statusDot}"></span>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-3 mb-1">
+                                        <div class="sm:hidden w-2 h-2 rounded-full ${statusDot}"></div>
+                                        <h3 class="font-mono text-sm sm:text-base text-white tracking-tight">${token.token}</h3>
+                                        <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-void border border-borderline ${isInvalid ? 'text-red' : 'text-cyan'}">${statusText}</span>
+                                    </div>
+                                    <p class="text-xs text-text-muted font-mono">Expires: ${token.expiry}</p>
+                                </div>
+                            </div>
+
+                            <div class="flex-1 w-full sm:max-w-[200px]">
+                                <div class="flex justify-between text-xs mb-1.5 font-mono">
+                                    <span class="text-text-muted">Usage</span>
+                                    <span class="text-white">${token.used} <span class="text-text-dark">/ ${token.limit}</span></span>
+                                </div>
+                                <div class="h-1.5 w-full bg-void rounded-full overflow-hidden border border-borderline">
+                                    <div class="h-full ${progressColor} progress-fill" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2 shrink-0">
+                                <button onclick="copyKey('${token.token}', this)" class="p-2.5 rounded-xl bg-void border border-borderline text-text-muted hover:text-cyan hover:border-cyan/30 transition-all">
+                                    <i data-lucide="copy" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="deleteKey('${token.token}')" class="p-2.5 rounded-xl bg-void border border-borderline text-text-muted hover:text-red hover:border-red/30 hover:bg-red-dim transition-all">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', html);
+                });
+
+                lucide.createIcons();
+
+                // Animate progress bars after render for a smooth fill effect
+                setTimeout(() => {
+                    data.tokens.forEach((token, index) => {
+                        const row = document.querySelectorAll('.token-row')[index];
+                        if(row) {
+                            const bar = row.querySelector('.progress-fill');
+                            const pct = Math.min((token.used / token.limit) * 100, 100);
+                            if(bar) bar.style.width = `${pct}%`;
+                        }
+                    });
+                }, 100);
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('tokens-list').innerHTML = `<div class="text-red text-center py-10 font-mono text-xs">SYS_ERR: FAILED TO LOAD TOKENS</div>`;
+            }
+        }
+
+        // Handle Form Submission (Create Key)
+        async function handleGenerate(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = `<div class="w-4 h-4 border-2 border-void/30 border-t-void rounded-full animate-spin"></div> Processing...`;
+            
+            const payload = {
+                limit: document.getElementById('tokenLimit').value,
+                expiry: document.getElementById('tokenExpiry').value
+            };
+
+            try {
+                const res = await fetch('api-backend.php?action=create_token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if(res.ok) {
+                    toggleModal('generateModal', false);
+                    loadTokens(); // Refresh list
+                }
+            } catch (err) {
+                alert('Failed to generate token.');
+            } finally {
+                btn.innerHTML = `Create Token <i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+                lucide.createIcons();
+            }
+        }
+
+        // Delete Key
+        async function deleteKey(tokenStr) {
+            if(!confirm(`Are you sure you want to revoke key: ${tokenStr}?`)) return;
+            
+            // Visual feedback before deletion
+            const row = document.getElementById(`row-${tokenStr}`);
+            if(row) row.style.opacity = '0.5';
+
+            try {
+                await fetch('api-backend.php?action=delete_token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: tokenStr })
+                });
+                loadTokens(); // Refresh
+            } catch (err) {
+                alert('Failed to delete token.');
+                if(row) row.style.opacity = '1';
+            }
+        }
+
+        // Copy UI Micro-interaction
+        function copyKey(text, btn) {
+            navigator.clipboard.writeText(text);
+            const icon = btn.querySelector('i');
+            btn.classList.add('border-cyan', 'text-cyan');
+            icon.setAttribute('data-lucide', 'check');
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                btn.classList.remove('border-cyan', 'text-cyan');
+                icon.setAttribute('data-lucide', 'copy');
+                lucide.createIcons();
+            }, 1500);
+        }
+
+        // Modal Controller
+        function toggleModal(id, show) {
+            const modal = document.getElementById(id);
+            const content = document.getElementById('modalContent');
+            if (show) {
+                modal.classList.remove('hidden');
+                // Tiny delay to allow display:block before adding animation classes
+                setTimeout(() => { content.classList.add('modal-enter-active'); }, 10);
+            } else {
+                content.classList.remove('modal-enter-active');
+                setTimeout(() => { modal.classList.add('hidden'); }, 300);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadTokens);
+    </script>
+</body>
+</html>
