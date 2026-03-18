@@ -20,34 +20,33 @@ $token_check = validate_and_use_token($api_token, $video_url);
 if ($token_check !== true) {
     send_json_response(false, $token_check, 403);
 }
+
 // ==========================================
 // 🚀 THE MICRO-CACHE ENGINE (CDN Token Fix)
 // ==========================================
 $cache_hash = md5($video_url); 
 $cache_file = CACHE_DIR . '/' . $cache_hash . '.json';
 
-// DROP TO 5 MINUTES (300 SECONDS). 
-// This prevents server spam but ensures CDN links don't expire or hit their 3-click limits.
-$cache_lifetime = 300; 
+$cache_lifetime = 300; // 5 minutes
 
 // If cache exists AND is less than 5 minutes old...
 if (file_exists($cache_file) && (time() - filemtime($cache_file)) < $cache_lifetime) {
-    // Read the saved JSON and return it instantly
     $cached_data = json_decode(file_get_contents($cache_file), true);
-    
-    // Optional: Inject a little flag so you know it was served from cache
     $cached_data['cached'] = true; 
-    
     send_json_response(true, $cached_data);
 }
 
 // ==========================================
-// 4. EXECUTE SCRAPER (Only runs if cache is missed or expired)
+// 4. EXECUTE SCRAPER (Via Webshare Proxy)
 // ==========================================
 
 define('TARGET_API_KEY', '3c409435f781890e402cdf7312aa47f2a7e23594f5615ce524f8e711bc69acc5');
 define('TARGET_BASE_URL', 'https://www.xoffline.com');
 $cookie_file = DATA_DIR . '/cookie.txt';
+
+// 🛑 WEBSHARE PROXY CONFIGURATION 🛑
+$proxy_ip_port = "http://31.59.20.176:6754"; 
+$proxy_auth = "dnuijtuz:1rj9656dzjgk"; 
 
 // Step A: Get Cookies & CSRF
 $ch = curl_init();
@@ -56,9 +55,15 @@ curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_COOKIEJAR => $cookie_file,
     CURLOPT_COOKIEFILE => $cookie_file,
-    CURLOPT_USERAGENT => "Mozilla/5.0 (Linux; Android 15; CPH2467) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36",
+    CURLOPT_USERAGENT => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
     CURLOPT_ENCODING => "", 
-    CURLOPT_TIMEOUT => 15
+    CURLOPT_TIMEOUT => 20, 
+    // PROXY SETTINGS
+    CURLOPT_PROXY => $proxy_ip_port,
+    CURLOPT_PROXYUSERPWD => $proxy_auth,
+    CURLOPT_HTTPPROXYTUNNEL => true,
+    CURLOPT_SSL_VERIFYPEER => false,
+    CURLOPT_SSL_VERIFYHOST => false
 ]);
 $html_response = curl_exec($ch);
 curl_close($ch);
@@ -77,7 +82,9 @@ if (!$csrf && preg_match('/<meta name="csrf-token" content="([^"]+)"/', $html_re
 if (!$csrf) {
     $error_msg = "CSRF Token missing.";
     if (empty($html_response)) {
-        $error_msg .= " The target site returned an empty response (Your Serv00 server IP might be blocked).";
+        $error_msg .= " The proxy failed or was blocked by Cloudflare.";
+    } elseif (strpos($html_response, 'challenge-error-text') !== false) {
+        $error_msg .= " Cloudflare blocked the Webshare Proxy IP.";
     }
     send_json_response(false, "Internal Server Error: " . $error_msg, 500);
 }
@@ -93,16 +100,22 @@ curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_COOKIEFILE => $cookie_file,
     CURLOPT_ENCODING => "", 
+    // PROXY SETTINGS
+    CURLOPT_PROXY => $proxy_ip_port,
+    CURLOPT_PROXYUSERPWD => $proxy_auth,
+    CURLOPT_HTTPPROXYTUNNEL => true,
+    CURLOPT_SSL_VERIFYPEER => false,
+    CURLOPT_SSL_VERIFYHOST => false,
     CURLOPT_HTTPHEADER => [
         "Accept: application/json, text/plain, */*",
         "Content-Type: application/json",
         "Origin: " . TARGET_BASE_URL,
         "Referer: " . TARGET_BASE_URL . "/",
-        "Sec-Ch-Ua: \"Chromium\";v=\"137\", \"Not/A)Brand\";v=\"24\"",
-        "Sec-Ch-Ua-Mobile: ?1",
-        "Sec-Ch-Ua-Platform: \"Android\"",
+        "Sec-Ch-Ua: \"Chromium\";v=\"122\", \"Google Chrome\";v=\"122\"",
+        "Sec-Ch-Ua-Mobile: ?0",
+        "Sec-Ch-Ua-Platform: \"Windows\"",
         "X-CSRF-Token: " . $csrf,
-        "User-Agent: Mozilla/5.0 (Linux; Android 15; CPH2467) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36"
+        "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
     ],
     CURLOPT_TIMEOUT => 30
 ]);
@@ -124,12 +137,12 @@ if ($json && isset($json['data']) && is_array($json['data'])) {
     }
     
     // 💾 SAVE TO CACHE BEFORE RETURNING
-    $json['cached'] = false; // Add a flag so you know it was fresh
+    $json['cached'] = false; 
     file_put_contents($cache_file, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     
-    // Return Success Response!
     send_json_response(true, $json);
 } else {
-    send_json_response(false, ["message" => "Failed to parse target API response", "raw" => $response], 502);
+    // If we get here, Cloudflare might have blocked the POST request.
+    send_json_response(false, ["message" => "Failed to parse target API response via Proxy", "raw" => $response], 502);
 }
 ?>
