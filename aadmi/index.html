@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en" class="dark selection:bg-[#8BE9FD] selection:text-[#050505]">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KORN // CORE</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script
+      async
+      crossorigin="anonymous"
+      data-clerk-publishable-key="pk_test_cmVsaWV2ZWQtb3N0cmljaC02Ni5jbGVyay5hY2NvdW50cy5kZXYk"
+      src="https://relieved-ostrich-66.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
+      type="text/javascript"
+    ></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: {
+                        void: '#030303',      
+                        surface: '#0A0A0B',   
+                        panel: 'rgba(20, 20, 22, 0.65)',     
+                        borderline: 'rgba(255, 255, 255, 0.06)',
+                        cyan: { DEFAULT: '#8BE9FD', dim: 'rgba(139, 233, 253, 0.1)', glow: 'rgba(139, 233, 253, 0.5)' },
+                        purple: { DEFAULT: '#BD93F9', dim: 'rgba(189, 147, 249, 0.1)' },
+                        text: { main: '#F4F4F5', muted: '#A1A1AA', dark: '#52525B' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Base Resets */
+        body { background-color: #030303; color: #F4F4F5; -webkit-font-smoothing: antialiased; }
+        ::-webkit-scrollbar { display: none; } 
+        
+        /* =========================================
+           ✨ PRO GEN-Z FLUID SHADERS
+           ========================================= */
+        .shader-bg { position: fixed; inset: 0; z-index: -2; background-color: #030303; overflow: hidden; }
+        
+        .orb-1 {
+            position: absolute; top: -10%; left: -10%; width: 50vw; height: 50vw; min-width: 300px; min-height: 300px;
+            background: radial-gradient(circle, rgba(139,233,253,0.12) 0%, transparent 60%);
+            animation: float-orb 18s ease-in-out infinite alternate; filter: blur(60px);
+        }
+        .orb-2 {
+            position: absolute; bottom: -20%; right: -10%; width: 60vw; height: 60vw; min-width: 400px; min-height: 400px;
+            background: radial-gradient(circle, rgba(189,147,249,0.08) 0%, transparent 60%);
+            animation: float-orb 24s ease-in-out infinite alternate-reverse; filter: blur(60px);
+        }
+
+        @keyframes float-orb {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(5%, 10%) scale(1.1); }
+            100% { transform: translate(-5%, 5%) scale(0.95); }
+        }
+
+        .noise-overlay {
+            position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* =========================================
+           🚀 PREMIUM UI COMPONENTS
+           ========================================= */
+        .glass-panel {
+            background: var(--tw-colors-panel);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--tw-colors-borderline);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 8px 32px rgba(0,0,0,0.4);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-panel:hover { border-color: rgba(139, 233, 253, 0.2); transform: translateY(-3px); }
+
+        .floating-nav {
+            background: rgba(10, 10, 11, 0.7); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+
+        .nav-item.active { color: #8BE9FD; background: rgba(139, 233, 253, 0.1); }
+        .nav-item.active::after {
+            content: ''; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+            width: 4px; height: 4px; background: #8BE9FD; border-radius: 50%;
+            box-shadow: 0 0 10px #8BE9FD, 0 0 20px #8BE9FD;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-in { animation: slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+        .d-1 { animation-delay: 0.1s; } .d-2 { animation-delay: 0.2s; } .d-3 { animation-delay: 0.3s; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden relative">
+
+    <div class="shader-bg">
+        <div class="orb-1"></div>
+        <div class="orb-2"></div>
+    </div>
+    <div class="noise-overlay"></div>
+
+    <header class="md:hidden fixed top-0 left-0 right-0 h-20 bg-gradient-to-b from-void to-transparent z-40 flex items-center justify-between px-6">
+        <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-cyan shadow-[0_0_12px_#8BE9FD] animate-pulse"></div>
+            <span class="font-mono font-bold text-lg tracking-tighter">KORN<span class="text-cyan">.</span></span>
+        </div>
+        <div class="flex items-center gap-5">
+            <button class="text-text-main hover:text-cyan transition-colors relative">
+                <i data-lucide="bell" class="w-5 h-5"></i>
+                <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 border-2 border-void rounded-full"></span>
+            </button>
+            <div id="mobile-user-mount"></div>
+        </div>
+    </header>
+
+    <nav class="md:hidden fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 floating-nav rounded-full px-2 py-2 flex items-center gap-1 w-[90%] max-w-[340px] justify-between">
+        <a href="index.html" class="nav-item active relative p-3 rounded-full flex-1 flex justify-center transition-all duration-300">
+            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+        </a>
+        <a href="tokens.html" class="nav-item relative p-3 rounded-full flex-1 flex justify-center text-text-muted hover:text-text-main transition-all duration-300">
+            <i data-lucide="key" class="w-5 h-5"></i>
+        </a>
+        <a href="logs.html" class="nav-item relative p-3 rounded-full flex-1 flex justify-center text-text-muted hover:text-text-main transition-all duration-300">
+            <i data-lucide="terminal-square" class="w-5 h-5"></i>
+        </a>
+        <a href="../docs.html" class="nav-item relative p-3 rounded-full flex-1 flex justify-center text-text-muted hover:text-text-main transition-all duration-300">
+            <i data-lucide="file-code" class="w-5 h-5"></i>
+        </a>
+    </nav>
+
+    <aside class="hidden md:flex flex-col w-64 h-full border-r border-borderline bg-void/40 backdrop-blur-xl relative z-30 pt-8 pb-6 justify-between">
+        <div class="px-8">
+            <div class="flex items-center gap-3 mb-12">
+                <div class="w-2 h-2 rounded-full bg-cyan shadow-[0_0_12px_#8BE9FD]"></div>
+                <h1 class="font-mono font-bold text-xl tracking-tighter">KORN<span class="text-cyan">_</span>SYS</h1>
+            </div>
+            <div class="space-y-2">
+                <p class="text-[10px] uppercase tracking-[0.2em] text-text-dark font-semibold mb-4">Core</p>
+                <a href="index.html" class="flex items-center gap-3 px-4 py-3 text-cyan bg-cyan-dim rounded-xl border border-cyan/20 transition-all font-medium">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="tokens.html" class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-text-main hover:bg-borderline rounded-xl transition-all font-medium">
+                    <i data-lucide="key" class="w-4 h-4"></i> API Keys
+                </a>
+                <a href="logs.html" class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-text-main hover:bg-borderline rounded-xl transition-all font-medium">
+                    <i data-lucide="terminal-square" class="w-4 h-4"></i> Live Logs
+                </a>
+                <a href="../docs.html" class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-text-main hover:bg-borderline rounded-xl transition-all font-medium">
+                    <i data-lucide="file-code" class="w-4 h-4"></i> Docs
+                </a>
+            </div>
+        </div>
+        <div class="px-8">
+            <div class="glass-panel p-4 rounded-xl flex items-center gap-3">
+                <div id="desktop-user-mount"></div>
+                <div>
+                    <p class="text-sm font-medium text-white" id="admin-name">Admin</p>
+                    <p class="text-[10px] text-text-dark font-mono uppercase tracking-widest">SYS_ROOT</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 h-full overflow-y-auto relative z-10 pt-24 pb-32 md:pt-0 md:pb-0 scroll-smooth" id="app-container" style="opacity: 0; visibility: hidden; transition: opacity 0.4s ease;">
+        
+        <div class="max-w-6xl mx-auto px-6 md:pt-12">
+            <header class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10 animate-in d-1">
+                <div>
+                    <p class="font-mono text-cyan text-xs mb-2 uppercase tracking-[0.2em] font-semibold" id="greeting">INIT_SESSION</p>
+                    <h2 class="text-4xl font-bold text-white tracking-tight leading-none">Overview</h2>
+                </div>
+                <button onclick="window.location.href='tokens.html'" class="px-6 py-3 bg-white text-void font-semibold rounded-full transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] flex items-center gap-2 justify-center shadow-lg w-full sm:w-auto">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Generate Key
+                </button>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 auto-rows-auto">
+                
+                <div class="glass-panel col-span-1 md:col-span-2 rounded-3xl p-8 flex flex-col justify-between animate-in d-2 min-h-[180px]">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="w-10 h-10 rounded-full bg-borderline flex items-center justify-center border border-white/5">
+                            <i data-lucide="activity" class="text-white w-5 h-5"></i>
+                        </div>
+                        <span class="font-mono text-[10px] px-3 py-1 bg-void rounded-full border border-borderline uppercase tracking-wider text-text-muted">Total Volume</span>
+                    </div>
+                    <div>
+                        <div class="flex items-end gap-3">
+                            <h3 class="font-mono text-6xl font-light text-white tracking-tighter leading-none" id="stat-requests">--</h3>
+                            <span class="text-cyan text-sm flex items-center font-medium pb-1"><i data-lucide="trending-up" class="w-4 h-4 mr-1"></i>Live</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel col-span-1 rounded-3xl p-8 flex flex-col justify-between animate-in d-2 min-h-[180px] relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-cyan opacity-0 rounded-full blur-3xl group-hover:opacity-[0.15] transition-opacity duration-700"></div>
+                    <div class="w-10 h-10 rounded-full bg-cyan-dim flex items-center justify-center mb-6 border border-cyan/20">
+                        <i data-lucide="fingerprint" class="text-cyan w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-baseline gap-1">
+                            <h3 class="font-mono text-5xl font-light text-white tracking-tighter leading-none" id="stat-active">--</h3>
+                            <span class="font-mono text-text-dark text-lg" id="stat-total">/--</span>
+                        </div>
+                        <p class="text-xs text-text-muted mt-2 font-medium">Active API Keys</p>
+                    </div>
+                </div>
+
+                <div class="glass-panel col-span-1 md:col-span-3 rounded-3xl p-8 animate-in d-3 h-[320px] flex flex-col">
+                    <div class="flex justify-between items-center mb-6">
+                        <h4 class="text-sm font-semibold text-text-main">Network Traffic</h4>
+                        <span class="text-[10px] text-text-dark font-mono bg-void px-2 py-1 rounded border border-borderline">7D SUMMARY</span>
+                    </div>
+                    <div class="flex-1 relative w-full h-full">
+                        <canvas id="trafficChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-panel col-span-1 md:col-span-3 rounded-3xl p-8 flex flex-col sm:flex-row justify-between items-center gap-6 animate-in d-3">
+                    <div class="flex items-center gap-4 w-full sm:w-auto">
+                        <div class="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shrink-0">
+                            <span class="w-3 h-3 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399] animate-pulse"></span>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-semibold text-white">System Operational</h4>
+                            <p class="text-xs text-text-muted mt-1">/korn/api/process.php is responding</p>
+                        </div>
+                    </div>
+                    <div class="bg-void border border-borderline rounded-xl p-3 flex justify-between items-center cursor-pointer hover:border-cyan/40 transition-colors w-full sm:w-80 group" onclick="copyEndpoint(event)">
+                        <span class="font-mono text-xs text-text-muted truncate group-hover:text-white transition-colors">/korn/api/process.php</span>
+                        <i data-lucide="copy" class="w-4 h-4 text-text-dark group-hover:text-cyan transition-colors"></i>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // Greeting
+        const hour = new Date().getHours();
+        const greetingEl = document.getElementById('greeting');
+        if (hour < 12) greetingEl.textContent = 'SYS_MSG: GOOD_MORNING';
+        else if (hour < 18) greetingEl.textContent = 'SYS_MSG: LOGGED_IN';
+        else greetingEl.textContent = 'SYS_MSG: NIGHT_SHIFT';
+
+        // Copy Micro-interaction
+        function copyEndpoint(event) {
+            navigator.clipboard.writeText("https://awertgy453.serv00.net/korn/api/process.php");
+            const icon = event.currentTarget.querySelector('i');
+            icon.setAttribute('data-lucide', 'check');
+            icon.classList.remove('text-text-dark', 'group-hover:text-cyan');
+            icon.classList.add('text-emerald-400');
+            lucide.createIcons();
+            setTimeout(() => {
+                icon.setAttribute('data-lucide', 'copy');
+                icon.classList.remove('text-emerald-400');
+                icon.classList.add('text-text-dark', 'group-hover:text-cyan');
+                lucide.createIcons();
+            }, 2000);
+        }
+
+        // Chart (Aesthetic styling)
+        function initChart() {
+            try {
+                const canvas = document.getElementById('trafficChart');
+                if(!canvas) return;
+                const ctx = canvas.getContext('2d');
+                
+                let gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                gradient.addColorStop(0, 'rgba(139, 233, 253, 0.25)');
+                gradient.addColorStop(1, 'rgba(139, 233, 253, 0)');
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
+                        datasets: [{
+                            data: [12, 19, 15, 25, 22, 30, 45],
+                            borderColor: '#8BE9FD', backgroundColor: gradient, borderWidth: 3,
+                            pointBackgroundColor: '#0A0A0B', pointBorderColor: '#8BE9FD', pointBorderWidth: 2, pointRadius: 5,
+                            fill: true, tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { displayColors: false, backgroundColor: '#141416', titleFont: {family: 'JetBrains Mono'}, bodyFont: {family: 'JetBrains Mono'} } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { color: '#52525B', font: { family: 'JetBrains Mono' } } },
+                            y: { border: { display: false }, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#52525B', font: { family: 'JetBrains Mono' }, maxTicksLimit: 4 } }
+                        }
+                    }
+                });
+            } catch (e) { console.error("Chart failed:", e); }
+        }
+
+        // Fetch Data
+        async function fetchDashboardStats() {
+            try {
+                const response = await fetch('api-backend.php?action=get_stats');
+                const data = await response.json();
+                
+                if(data.success) {
+                    animateValue("stat-requests", 0, data.stats.total_requests, 1000);
+                    animateValue("stat-active", 0, data.stats.active_tokens, 800);
+                    document.getElementById('stat-total').textContent = `/${data.stats.total_tokens}`;
+                }
+            } catch (error) {
+                document.getElementById('stat-requests').textContent = 'ERR';
+            }
+        }
+
+        function animateValue(id, start, end, duration) {
+            if (start === end) { document.getElementById(id).textContent = end; return; }
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 4);
+                document.getElementById(id).textContent = Math.floor(easeOut * (end - start) + start);
+                if (progress < 1) window.requestAnimationFrame(step);
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // ==========================================
+        // 🔐 CLERK INIT & SECURE REVEAL
+        // ==========================================
+        window.addEventListener("load", async function () {
+            try {
+                await window.Clerk.load({
+                    appearance: { variables: { colorPrimary: '#8BE9FD' } }
+                });
+
+                if (window.Clerk.user) {
+                    // Mount Avatar to Mobile and Desktop
+                    window.Clerk.mountUserButton(document.getElementById('mobile-user-mount'));
+                    window.Clerk.mountUserButton(document.getElementById('desktop-user-mount'));
+                    
+                    // Set Name in Sidebar
+                    const adminName = document.getElementById('admin-name');
+                    if(window.Clerk.user.firstName) {
+                        adminName.textContent = window.Clerk.user.firstName;
+                    }
+
+                    // Reveal UI safely
+                    const appContainer = document.getElementById('app-container');
+                    appContainer.style.visibility = 'visible';
+                    appContainer.style.opacity = '1';
+
+                    // Start fetching API stats
+                    fetchDashboardStats();
+                    initChart();
+
+                } else {
+                    // Unauthorized - kick to landing page
+                    window.location.href = '../index.html';
+                }
+            } catch (err) {
+                console.error("Clerk Init Error:", err);
+            }
+        });
+    </script>
+</body>
+</html>
