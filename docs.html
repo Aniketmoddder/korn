@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en" class="dark selection:bg-[#00F0FF] selection:text-[#000]">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KORN // Developer Docs</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <script
+      async
+      crossorigin="anonymous"
+      data-clerk-publishable-key="pk_test_cmVsaWV2ZWQtb3N0cmljaC02Ni5jbGVyay5hY2NvdW50cy5kZXYk"
+      src="https://relieved-ostrich-66.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
+      type="text/javascript"
+    ></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    colors: {
+                        void: '#000000',      
+                        surface: '#0A0A0A',   
+                        borderline: 'rgba(255,255,255,0.08)',
+                        cyan: { DEFAULT: '#00F0FF', dim: 'rgba(0, 240, 255, 0.1)' },
+                        text: { main: '#FFFFFF', muted: '#A1A1AA', dark: '#52525B' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Ultra-Clean Resets */
+        body { background-color: #000000; color: #FFFFFF; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+        
+        /* Subtle Ambient Background */
+        .ambient-glow {
+            position: fixed; inset: 0; z-index: -1; pointer-events: none;
+            background: radial-gradient(circle at 50% -20%, rgba(0, 240, 255, 0.08), transparent 50%);
+        }
+
+        /* Premium Glass Cards */
+        .premium-card {
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--tw-colors-borderline);
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.02);
+            overflow: hidden;
+        }
+
+        /* Modern Inputs */
+        .premium-input {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            color: #FFF;
+            transition: all 0.3s ease;
+        }
+        .premium-input:focus {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(0, 240, 255, 0.4);
+            box-shadow: 0 0 0 4px rgba(0, 240, 255, 0.1);
+            outline: none;
+        }
+
+        /* Smooth Milky Reveal Classes (Used by GSAP) */
+        .milky-reveal {
+            opacity: 0;
+            filter: blur(12px);
+            transform: translateY(30px);
+        }
+
+        /* Syntax Highlighting */
+        .str { color: #A7F3D0; } .key { color: #8BE9FD; } .bool { color: #FDBA74; } .null { color: #F9A8D4; }
+    </style>
+</head>
+<body class="relative">
+
+    <div class="ambient-glow"></div>
+
+    <nav class="fixed top-0 left-0 right-0 h-20 bg-void/70 backdrop-blur-xl border-b border-borderline z-50 flex items-center justify-between px-6 md:px-10">
+        <a href="index.html" class="flex items-center gap-3">
+            <div class="w-2.5 h-2.5 rounded-full bg-cyan shadow-[0_0_10px_#00F0FF]"></div>
+            <span class="font-semibold text-lg tracking-tight text-white">KORN<span class="text-cyan">.</span></span>
+        </a>
+        
+        <div class="flex items-center gap-4">
+            <button id="login-btn" class="text-white hover:text-cyan transition-colors text-sm font-medium hidden">Login Karo</button>
+            <div id="user-profile-btn"></div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-24 px-6 md:px-10 max-w-6xl mx-auto">
+        
+        <div class="text-center max-w-3xl mx-auto mb-20">
+            <div class="milky-reveal inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan/10 border border-cyan/20 text-cyan text-xs font-medium mb-8">
+                <i data-lucide="zap" class="w-3.5 h-3.5"></i> Korn Downloader
+            </div>
+            <h1 class="milky-reveal text-5xl md:text-7xl font-bold tracking-tighter text-white mb-6 leading-tight">
+                Data extraction,<br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-text-dark">ekdum aasan.</span>
+            </h1>
+            <p class="milky-reveal text-lg text-text-muted leading-relaxed mb-8 max-w-2xl mx-auto font-light">
+                Sabse fast aur reliable API Porn Video Downloading ke liye. Adult movies , sab Ki video link nikali jati hain. Processing mein bas 8-10 seconds lagte . Esy integration hoti hai.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-24">
+            
+            <div class="milky-reveal premium-card lg:col-span-5 p-8 flex flex-col">
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-white">Sandbox Environment (Test Karo)</h3>
+                    <p class="text-sm text-text-muted mt-1">Apni API key aur target video link daal ke check karo.</p>
+                </div>
+
+                <form id="testForm" class="space-y-6 flex-1 flex flex-col">
+                    <div>
+                        <div class="flex justify-between items-end mb-2 ml-1">
+                            <label class="block text-xs font-medium text-text-muted">Secret Key</label>
+                            <span id="key-status" class="text-[10px] font-mono text-cyan hidden animate-pulse">Auto-filled</span>
+                        </div>
+                        <input type="text" id="apiToken" placeholder="Secure key laa rahe hain..." required class="premium-input w-full px-5 py-4 font-mono text-sm placeholder:text-text-dark">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-text-muted mb-2 ml-1">Media URL</label>
+                        <input type="url" id="apiUrl" placeholder="Video ka link yahan daalo (https://...)" required class="premium-input w-full px-5 py-4 font-mono text-sm placeholder:text-text-dark">
+                    </div>
+                    
+                    <button type="submit" id="runBtn" class="w-full mt-auto px-6 py-4 bg-white hover:bg-gray-200 text-black font-semibold rounded-2xl transition-all flex items-center justify-center gap-2 text-sm shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                        <i data-lucide="play" class="w-4 h-4 fill-current"></i> Request Bhejo
+                    </button>
+                </form>
+            </div>
+
+            <div class="milky-reveal premium-card lg:col-span-7 flex flex-col h-[360px] min-w-0">
+                <div class="bg-black/40 border-b border-borderline flex items-center justify-between px-6 py-4 shrink-0">
+                    <div class="flex gap-2">
+                        <div class="w-3 h-3 rounded-full bg-[#FF5F56]"></div>
+                        <div class="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
+                        <div class="w-3 h-3 rounded-full bg-[#27C93F]"></div>
+                    </div>
+                    <span class="font-mono text-[10px] text-text-dark tracking-widest uppercase">Response.json</span>
+                    <button onclick="copyOutput()" class="text-text-muted hover:text-white transition-colors"><i data-lucide="copy" class="w-4 h-4" id="copyIcon"></i></button>
+                </div>
+                
+                <div class="flex-1 bg-void p-6 overflow-y-auto relative">
+                    <div id="loader" class="absolute inset-0 bg-void/80 backdrop-blur-md flex flex-col items-center justify-center hidden z-10 transition-all duration-300 opacity-0">
+                        <div class="w-8 h-8 border-2 border-white/10 border-t-white rounded-full animate-spin mb-4"></div>
+                        <span class="font-medium text-sm text-white">Data Aaa rahe hain...</span>
+                        <span class="font-mono text-xs text-text-muted mt-2">Scraping ho rahe hain (8-10s lagte hain)...</span>
+                    </div>
+                    
+                    <pre id="jsonOutput" class="font-mono text-[13px] leading-relaxed text-text-dark whitespace-pre-wrap break-all">request_ka_intezaar_hai...</pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="milky-reveal">
+            <h3 class="text-2xl font-semibold text-white mb-6">Integration Guide (Kaise Use Karein)</h3>
+            <div class="premium-card overflow-hidden">
+                <div class="flex border-b border-borderline bg-black/40 px-2 pt-2">
+                    <button onclick="switchTab('js')" id="tab-js" class="px-6 py-3 text-sm font-medium border-b-2 border-cyan text-white transition-all">Node.js</button>
+                    <button onclick="switchTab('py')" id="tab-py" class="px-6 py-3 text-sm font-medium border-b-2 border-transparent text-text-muted hover:text-white transition-all">Python</button>
+                    <button onclick="switchTab('php')" id="tab-php" class="px-6 py-3 text-sm font-medium border-b-2 border-transparent text-text-muted hover:text-white transition-all">PHP</button>
+                </div>
+
+                <div class="bg-void relative group">
+                    <button class="absolute top-4 right-4 text-text-dark hover:text-white transition-colors" onclick="copyCode()"><i data-lucide="copy" class="w-4 h-4" id="copyCodeIcon"></i></button>
+                    
+                    <pre id="code-js" class="p-6 font-mono text-sm leading-relaxed overflow-x-auto m-0 text-text-muted"><span class="key">const</span> fetchVideoData = <span class="key">async</span> (url, token) => {
+  <span class="key">const</span> endpoint = <span class="str">\`https://awertgy453.serv00.net/korn/api/process.php?url=\${encodeURIComponent(url)}&token=\${token}\`</span>;
+  <span class="key">const</span> response = <span class="key">await</span> fetch(endpoint);
+  <span class="key">const</span> data = <span class="key">await</span> response.json();
+  console.log(data);
+};</pre>
+
+                    <pre id="code-py" class="p-6 font-mono text-sm leading-relaxed overflow-x-auto m-0 text-text-muted hidden"><span class="key">import</span> requests, urllib.parse
+
+<span class="key">def</span> <span class="str">fetch_video_data</span>(url, token):
+    encoded_url = urllib.parse.quote(url, safe=<span class="str">''</span>)
+    endpoint = f<span class="str">"https://awertgy453.serv00.net/korn/api/process.php?url={encoded_url}&token={token}"</span>
+    
+    response = requests.get(endpoint)
+    print(response.json())</pre>
+
+                    <pre id="code-php" class="p-6 font-mono text-sm leading-relaxed overflow-x-auto m-0 text-text-muted hidden"><?php
+<span class="key">function</span> fetchVideoData($url, $token) {
+    $endpoint = <span class="str">"https://awertgy453.serv00.net/korn/api/process.php?url="</span> . urlencode($url) . <span class="str">"&token="</span> . $token;
+    $response = file_get_contents($endpoint);
+    <span class="key">return</span> json_decode($response, <span class="bool">true</span>);
+}
+?&gt;</pre>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // ==========================================
+        // 🌟 "MILKY" SMOOTH GSAP REVEAL
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            gsap.to(".milky-reveal", {
+                y: 0,
+                opacity: 1,
+                filter: "blur(0px)",
+                duration: 1.2,
+                stagger: 0.15,
+                ease: "power3.out",
+                delay: 0.1
+            });
+        });
+
+        // ==========================================
+        // 🔐 CLERK AUTH & AUTO-TOKEN INJECTION
+        // ==========================================
+        window.addEventListener("load", async function () {
+            try {
+                // Initialize Clerk
+                let currentPath = window.location.origin + window.location.pathname;
+                
+                await window.Clerk.load({
+                    appearance: { variables: { colorPrimary: '#00F0FF' } }
+                });
+
+                const signInBtn = document.getElementById("login-btn");
+                const userProfileBtn = document.getElementById("user-profile-btn");
+                const tokenInput = document.getElementById("apiToken");
+                const keyStatus = document.getElementById("key-status");
+
+                if (window.Clerk.user) {
+                    // USER IS LOGGED IN -> Mount Avatar
+                    window.Clerk.mountUserButton(userProfileBtn);
+
+                    // Fetch their API key from the Dashboard bridge silently
+                    try {
+                        const response = await fetch('dashboard/dashboard-api.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ clerk_id: window.Clerk.user.id })
+                        });
+                        const json = await response.json();
+                        
+                        if (json.success && json.data.token) {
+                            tokenInput.value = json.data.token;
+                            keyStatus.classList.remove('hidden'); // Show "Auto-filled" badge
+                        } else {
+                            tokenInput.placeholder = "Key load nahi hui. Dashboard check karo.";
+                        }
+                    } catch (e) {
+                        tokenInput.placeholder = "tok_...";
+                    }
+
+                } else {
+                    // USER IS LOGGED OUT -> Show Sign In button
+                    tokenInput.placeholder = "tok_..."; // Reset placeholder
+                    signInBtn.classList.remove("hidden");
+                    
+                    signInBtn.onclick = () => window.Clerk.openSignIn({
+                        fallbackRedirectUrl: currentPath,
+                        forceRedirectUrl: currentPath
+                    });
+                }
+            } catch (err) {
+                console.error("Clerk Init Error:", err);
+            }
+        });
+
+        // ==========================================
+        // ⚡ API SANDBOX LOGIC
+        // ==========================================
+        document.getElementById('testForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = document.getElementById('apiToken').value.trim();
+            const url = document.getElementById('apiUrl').value.trim();
+            const output = document.getElementById('jsonOutput');
+            const loader = document.getElementById('loader');
+            const btn = document.getElementById('runBtn');
+
+            // Button Loading State
+            btn.disabled = true;
+            btn.innerHTML = `<div class="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin"></div> Process ho raha hai...`;
+            
+            // Loader smooth fade in
+            output.textContent = '';
+            loader.classList.remove('hidden');
+            setTimeout(() => loader.classList.remove('opacity-0'), 10);
+
+            try {
+                const endpoint = `api/process.php?url=${encodeURIComponent(url)}&token=${token}`;
+                const response = await fetch(endpoint);
+                const data = await response.json();
+                
+                // Colorize JSON output smoothly
+                let jsonStr = JSON.stringify(data, null, 2);
+                jsonStr = jsonStr.replace(/&/g, '&amp;').replace(/</g, '<').replace(/>/g, '&gt;');
+                jsonStr = jsonStr.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                    let cls = 'text-white';
+                    if (/^"/.test(match)) {
+                        if (/:$/.test(match)) { cls = 'key'; }
+                        else { cls = 'str'; }
+                    } else if (/true|false/.test(match)) { cls = 'bool'; }
+                    else if (/null/.test(match)) { cls = 'null'; }
+                    return '<span class="' + cls + '">' + match + '</span>';
+                });
+
+                output.innerHTML = jsonStr;
+
+            } catch (err) {
+                output.innerHTML = `<span class="text-red-400">Error aa gaya bhai. Target URL sahi se check karo.</span>`;
+            } finally {
+                // Smooth fade out loader
+                loader.classList.add('opacity-0');
+                setTimeout(() => loader.classList.add('hidden'), 300);
+                
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="play" class="w-4 h-4 fill-current"></i> Request Bhejo`;
+                lucide.createIcons();
+            }
+        });
+
+        // Copy functionality
+        function copyOutput() {
+            const text = document.getElementById('jsonOutput').innerText;
+            if(text.includes('request_ka_intezaar_hai')) return;
+            navigator.clipboard.writeText(text);
+            const icon = document.getElementById('copyIcon');
+            icon.setAttribute('data-lucide', 'check');
+            icon.classList.add('text-green-400');
+            lucide.createIcons();
+            setTimeout(() => {
+                icon.setAttribute('data-lucide', 'copy');
+                icon.classList.remove('text-green-400');
+                lucide.createIcons();
+            }, 2000);
+        }
+
+        // Copy Code Functionality
+        function copyCode() {
+            const activePre = document.querySelector('pre[id^="code-"]:not(.hidden)');
+            if(!activePre) return;
+            
+            navigator.clipboard.writeText(activePre.innerText);
+            const icon = document.getElementById('copyCodeIcon');
+            icon.setAttribute('data-lucide', 'check');
+            icon.classList.add('text-green-400');
+            lucide.createIcons();
+            setTimeout(() => {
+                icon.setAttribute('data-lucide', 'copy');
+                icon.classList.remove('text-green-400');
+                lucide.createIcons();
+            }, 2000);
+        }
+
+        // Tab Switching
+        function switchTab(lang) {
+            document.querySelectorAll('#tab-js, #tab-py, #tab-php').forEach(btn => {
+                btn.classList.remove('border-cyan', 'text-white');
+                btn.classList.add('border-transparent', 'text-text-muted');
+            });
+            document.getElementById('code-js').classList.add('hidden');
+            document.getElementById('code-py').classList.add('hidden');
+            document.getElementById('code-php').classList.add('hidden');
+
+            const activeBtn = document.getElementById(`tab-${lang}`);
+            activeBtn.classList.add('border-cyan', 'text-white');
+            activeBtn.classList.remove('border-transparent', 'text-text-muted');
+            document.getElementById(`code-${lang}`).classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
