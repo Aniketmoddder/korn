@@ -37,16 +37,12 @@ if (file_exists($cache_file) && (time() - filemtime($cache_file)) < $cache_lifet
 }
 
 // ==========================================
-// 4. EXECUTE SCRAPER (Via Webshare Proxy)
+// 4. EXECUTE SCRAPER (Direct Connection via Railway)
 // ==========================================
 
 define('TARGET_API_KEY', '3c409435f781890e402cdf7312aa47f2a7e23594f5615ce524f8e711bc69acc5');
 define('TARGET_BASE_URL', 'https://www.xoffline.com');
 $cookie_file = DATA_DIR . '/cookie.txt';
-
-// 🛑 WEBSHARE PROXY CONFIGURATION 🛑
-$proxy_ip_port = "http://31.59.20.176:6754"; 
-$proxy_auth = "dnuijtuz:1rj9656dzjgk"; 
 
 // Step A: Get Cookies & CSRF
 $ch = curl_init();
@@ -58,10 +54,6 @@ curl_setopt_array($ch, [
     CURLOPT_USERAGENT => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
     CURLOPT_ENCODING => "", 
     CURLOPT_TIMEOUT => 20, 
-    // PROXY SETTINGS
-    CURLOPT_PROXY => $proxy_ip_port,
-    CURLOPT_PROXYUSERPWD => $proxy_auth,
-    CURLOPT_HTTPPROXYTUNNEL => true,
     CURLOPT_SSL_VERIFYPEER => false,
     CURLOPT_SSL_VERIFYHOST => false
 ]);
@@ -82,9 +74,9 @@ if (!$csrf && preg_match('/<meta name="csrf-token" content="([^"]+)"/', $html_re
 if (!$csrf) {
     $error_msg = "CSRF Token missing.";
     if (empty($html_response)) {
-        $error_msg .= " The proxy failed or was blocked by Cloudflare.";
+        $error_msg .= " The request failed or was blocked by Cloudflare.";
     } elseif (strpos($html_response, 'challenge-error-text') !== false) {
-        $error_msg .= " Cloudflare blocked the Webshare Proxy IP.";
+        $error_msg .= " Cloudflare blocked the server IP.";
     }
     send_json_response(false, "Internal Server Error: " . $error_msg, 500);
 }
@@ -100,10 +92,6 @@ curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_COOKIEFILE => $cookie_file,
     CURLOPT_ENCODING => "", 
-    // PROXY SETTINGS
-    CURLOPT_PROXY => $proxy_ip_port,
-    CURLOPT_PROXYUSERPWD => $proxy_auth,
-    CURLOPT_HTTPPROXYTUNNEL => true,
     CURLOPT_SSL_VERIFYPEER => false,
     CURLOPT_SSL_VERIFYHOST => false,
     CURLOPT_HTTPHEADER => [
@@ -143,6 +131,6 @@ if ($json && isset($json['data']) && is_array($json['data'])) {
     send_json_response(true, $json);
 } else {
     // If we get here, Cloudflare might have blocked the POST request.
-    send_json_response(false, ["message" => "Failed to parse target API response via Proxy", "raw" => $response], 502);
+    send_json_response(false, ["message" => "Failed to parse target API response.", "raw" => $response], 502);
 }
 ?>
