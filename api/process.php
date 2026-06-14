@@ -130,7 +130,19 @@ if ($json && isset($json['data']) && is_array($json['data'])) {
     
     send_json_response(true, $json);
 } else {
-    // If we get here, Cloudflare might have blocked the POST request.
-    send_json_response(false, ["message" => "Failed to parse target API response.", "raw" => $response], 502);
+    // Cloudflare or Server Error Handling
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    
+    // Base64 encode the response so raw HTML doesn't break the JSON format
+    $safe_raw_response = base64_encode($response);
+    
+    $error_details = [
+        "message" => "Failed to parse target API response.",
+        "http_status" => $http_code,
+        "raw_base64" => $safe_raw_response,
+        "hint" => "Decode the raw_base64 string to see the exact HTML error. If http_status is 403 or 503, Cloudflare is blocking Railway's IP."
+    ];
+    
+    send_json_response(false, $error_details, 502);
 }
 ?>
