@@ -19,23 +19,41 @@ if ($token_check !== true) {
 }
 
 // ==========================================
-// ✅ MICRO-CACHE (60 seconds)
+// ✅ URL CACHE (strict 60s by URL)
 // ==========================================
+$cache_lifetime = 60; // 1 minute
 $cache_hash = md5($video_url);
 $cache_file = CACHE_DIR . '/' . $cache_hash . '.json';
-$cache_lifetime = 60; // 1 minute cache
 
-if (file_exists($cache_file) && (time() - filemtime($cache_file)) < $cache_lifetime) {
-    $cached_data = json_decode(file_get_contents($cache_file), true);
-    $cached_data['cached'] = true;
-    send_json_response(true, $cached_data);
+// Ensure cache dir exists
+if (!is_dir(CACHE_DIR)) {
+    @mkdir(CACHE_DIR, 0777, true);
 }
 
+// If cached file exists and still valid, return immediately
+if (file_exists($cache_file)) {
+    $age = time() - filemtime($cache_file);
+    if ($age < $cache_lifetime) {
+        $cached_data = json_decode(file_get_contents($cache_file), true);
+        if (is_array($cached_data)) {
+            $cached_data['cached'] = true;
+            $cached_data['cache_age'] = $age;
+            send_json_response(true, $cached_data);
+        }
+    }
+}
+
+// ==========================================
+// SCRAPER SETTINGS
+// ==========================================
 define('TARGET_API_KEY', '3c409435f781890e402cdf7312aa47f2a7e23594f5615ce524f8e711bc69acc5');
 define('TARGET_BASE_URL', 'https://www.xoffline.com');
 $cookie_file = DATA_DIR . '/cookie.txt';
 $log_file = __DIR__ . '/../logs/request.log';
 
+// ==========================================
+// PROXY ROTATION CONFIG
+// ==========================================
 $proxy_pool = [
     "196.244.48.124:12345:naveed:Qwerty_123ABC",
     "136.179.19.164:3128:harishankarchoubey:HvCjWdoIrK6szj8v",
@@ -168,6 +186,7 @@ if ($response === false || $curl_errno) {
     send_json_response(false, "Proxy connection failed during downloader request.", 502);
 }
 
+// Step C: Clean Up Output & Save to Cache
 $json = json_decode($response, true);
 
 if ($json && isset($json['data']) && is_array($json['data'])) {
@@ -187,6 +206,7 @@ if ($json && isset($json['data']) && is_array($json['data'])) {
         $json['debug']['http_status'] = $http_code;
     }
 
+    // Save cache for 60s reuse
     file_put_contents($cache_file, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     send_json_response(true, $json);
 } else {
