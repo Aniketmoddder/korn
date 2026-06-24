@@ -43,6 +43,36 @@ if (file_exists($cache_file) && (time() - filemtime($cache_file)) < $cache_lifet
 define('TARGET_API_KEY', '3c409435f781890e402cdf7312aa47f2a7e23594f5615ce524f8e711bc69acc5');
 define('TARGET_BASE_URL', 'https://www.xoffline.com');
 $cookie_file = DATA_DIR . '/cookie.txt';
+$log_file = __DIR__ . '/../logs/request.log';
+
+// ==========================================
+// PROXY ROTATION CONFIG
+// ==========================================
+$proxy_pool = [
+    "196.244.48.124:12345:naveed:Qwerty_123ABC",
+    "136.179.19.164:3128:harishankarchoubey:HvCjWdoIrK6szj8v",
+    "196.244.48.26:12345:naveed:Qwerty_123ABC",
+    "136.179.19.164:3128:llewellynashleybowen:rNXaRJfNPN233zw",
+    "ca-tor.pvdata.host:8080:g2rTXpNfPdcw2fzGtWKp62yH:nizar1elad2",
+    "im-bal.pvdata.host:8080:g2rTXpNfPdcw2fzGtWKp62yH:nizar1elad2",
+    "au-syd.pvdata.host:8080:g2rTXpNfPdcw2fzGtWKp62yH:nizar1elad2",
+    "px460403.pointtoserver.com:10780:purevpn0s12153504:1LTpwxbCJbEdXo"
+];
+
+// Pick a random proxy for this request
+$selected_proxy = $proxy_pool[array_rand($proxy_pool)];
+list($proxy_host, $proxy_port, $proxy_user, $proxy_pass) = explode(':', $selected_proxy);
+$proxy_auth = $proxy_user . ":" . $proxy_pass;
+
+// Helper to log proxy errors
+function log_proxy_error($log_file, $selected_proxy, $context, $curl_errno, $curl_error) {
+    $entry = "[" . date('Y-m-d H:i:s') . "] Proxy Error in {$context}\n";
+    $entry .= "Proxy: {$selected_proxy}\n";
+    $entry .= "cURL Errno: {$curl_errno}\n";
+    $entry .= "cURL Error: {$curl_error}\n";
+    $entry .= "--------------------------------------------------\n";
+    file_put_contents($log_file, $entry, FILE_APPEND);
+}
 
 // Step A: Get Cookies & CSRF
 $ch = curl_init();
@@ -55,9 +85,19 @@ curl_setopt_array($ch, [
     CURLOPT_ENCODING => "", 
     CURLOPT_TIMEOUT => 20, 
     CURLOPT_SSL_VERIFYPEER => false,
-    CURLOPT_SSL_VERIFYHOST => false
+    CURLOPT_SSL_VERIFYHOST => false,
+    // Proxy settings
+    CURLOPT_PROXY => $proxy_host,
+    CURLOPT_PROXYPORT => $proxy_port,
+    CURLOPT_PROXYUSERPWD => $proxy_auth,
+    CURLOPT_PROXYTYPE => CURLPROXY_HTTP
 ]);
 $html_response = curl_exec($ch);
+
+if ($html_response === false) {
+    log_proxy_error($log_file, $selected_proxy, "Cookie/CSRF Request", curl_errno($ch), curl_error($ch));
+}
+
 curl_close($ch);
 
 $csrf = null;
@@ -105,10 +145,20 @@ curl_setopt_array($ch, [
         "X-CSRF-Token: " . $csrf,
         "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
     ],
-    CURLOPT_TIMEOUT => 30
+    CURLOPT_TIMEOUT => 30,
+    // Proxy settings
+    CURLOPT_PROXY => $proxy_host,
+    CURLOPT_PROXYPORT => $proxy_port,
+    CURLOPT_PROXYUSERPWD => $proxy_auth,
+    CURLOPT_PROXYTYPE => CURLPROXY_HTTP
 ]);
 
 $response = curl_exec($ch);
+
+if ($response === false) {
+    log_proxy_error($log_file, $selected_proxy, "Downloader API Request", curl_errno($ch), curl_error($ch));
+}
+
 curl_close($ch);
 
 // Step C: Clean Up Output & Save to Cache
