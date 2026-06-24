@@ -1,12 +1,10 @@
 <?php
 // api/process.php
 
-// 1. LOAD CORE FILES
 require_once __DIR__ . '/../core/config.php';
 require_once __DIR__ . '/../core/helpers.php';
 require_once __DIR__ . '/../core/token-check.php';
 
-// 2. CAPTURE & VALIDATE PARAMETERS
 $video_url = $_GET['url'] ?? '';
 $api_token = $_GET['token'] ?? '';
 $debug = isset($_GET['debug']) && $_GET['debug'] === '1';
@@ -15,38 +13,29 @@ if (empty($video_url) || empty($api_token)) {
     send_json_response(false, "Missing 'url' or 'token' parameter", 400);
 }
 
-// 3. VERIFY TOKEN 
 $token_check = validate_and_use_token($api_token, $video_url);
 if ($token_check !== true) {
     send_json_response(false, $token_check, 403);
 }
 
 // ==========================================
-// 🚀 THE MICRO-CACHE ENGINE (CDN Token Fix)
+// ✅ MICRO-CACHE (60 seconds)
 // ==========================================
-$cache_hash = md5($video_url); 
+$cache_hash = md5($video_url);
 $cache_file = CACHE_DIR . '/' . $cache_hash . '.json';
-
-$cache_lifetime = 300; // 5 minutes
+$cache_lifetime = 60; // 1 minute cache
 
 if (file_exists($cache_file) && (time() - filemtime($cache_file)) < $cache_lifetime) {
     $cached_data = json_decode(file_get_contents($cache_file), true);
-    $cached_data['cached'] = true; 
+    $cached_data['cached'] = true;
     send_json_response(true, $cached_data);
 }
-
-// ==========================================
-// 4. EXECUTE SCRAPER (Strict Proxy Mode)
-// ==========================================
 
 define('TARGET_API_KEY', '3c409435f781890e402cdf7312aa47f2a7e23594f5615ce524f8e711bc69acc5');
 define('TARGET_BASE_URL', 'https://www.xoffline.com');
 $cookie_file = DATA_DIR . '/cookie.txt';
 $log_file = __DIR__ . '/../logs/request.log';
 
-// ==========================================
-// PROXY ROTATION CONFIG
-// ==========================================
 $proxy_pool = [
     "196.244.48.124:12345:naveed:Qwerty_123ABC",
     "136.179.19.164:3128:harishankarchoubey:HvCjWdoIrK6szj8v",
@@ -75,10 +64,8 @@ function proxy_options($proxy_host, $proxy_port, $proxy_auth) {
     ];
 }
 
-// Log proxy usage
 log_line($log_file, "Using proxy: {$selected_proxy}");
 
-// Optional debug IP check
 $debug_info = [];
 if ($debug) {
     $ipCheck = curl_init();
@@ -181,7 +168,6 @@ if ($response === false || $curl_errno) {
     send_json_response(false, "Proxy connection failed during downloader request.", 502);
 }
 
-// Step C: Clean Up Output & Save to Cache
 $json = json_decode($response, true);
 
 if ($json && isset($json['data']) && is_array($json['data'])) {
